@@ -19,17 +19,31 @@ class UserRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
-        return [
-            'name'=>'required',
-            'email'=>'required|email|unique:users,email'.$this->user?->id,
-            'phone'=>'required|numeric|unique:users,phone'.$this->user?->id,
-            'password'=>'required|min:8|max:15',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'role'=>'required|in:admin,manager,user',
+  public function rules(): array
+{
+    $id = $this->route('id') ?? null;
 
+    if ($id) {
+       
+        return [
+            'name'     => 'sometimes|required|string|max:255',
+            'email'    => 'sometimes|required|email|unique:users,email,' . $id,
+            'phone'    => 'sometimes|required|numeric|unique:users,phone,' . $id,
+            'password' => 'nullable|min:8|max:15',
+            'photo'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'role'     => 'sometimes|required|in:admin,manager,user',
         ];
     }
-  
+
+    
+    return [
+        'name'     => 'required|string|max:255',
+        'email'    => 'required|email|unique:users,email',
+        'phone'    => 'required|numeric|unique:users,phone',
+        'password' => 'required|min:8|max:15',
+        'photo'    => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'role'     => 'required|in:admin,manager,user',
+    ];
+}
+
 }
