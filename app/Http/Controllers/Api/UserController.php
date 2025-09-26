@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Models\User;
 use App\Traits\ApiResponse;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\Api\UserRequest;
@@ -15,10 +16,17 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
 
-        $users = User::paginate(PAGINATION_COUNT);
+    public function index(Request $request)
+    {
+        $data = User::query();
+
+        if ($request->has('search') && $request->search != '') {
+            $data->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $users = $data->paginate(PAGINATION_COUNT);
+
         return $this->successResponse(UserResource::collection($users));
     }
 
@@ -70,19 +78,17 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
-            $userData=$request->only(['name','email','phone','role']);
-             if($request->filled('password')){
-            $userData['password']=bcrypt($request->password);
+            $userData = $request->only(['name', 'email', 'phone', 'role']);
+            if ($request->filled('password')) {
+                $userData['password'] = bcrypt($request->password);
             }
-            if($request->hasFile('photo')){
-            $userData['photo']=saveImage('images',$request->file('photo'));
+            if ($request->hasFile('photo')) {
+                $userData['photo'] = saveImage('images', $request->file('photo'));
             }
-         
-             $user->update($userData);
-           
-         return $this->successResponse(UserResource::make($user->fresh()), 'User Updated Successfully', 200);
 
+            $user->update($userData);
 
+            return $this->successResponse(UserResource::make($user->fresh()), 'User Updated Successfully', 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
 
             return $this->errorResponse('User Not Found', 404);
