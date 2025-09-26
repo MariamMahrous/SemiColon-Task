@@ -33,7 +33,7 @@ class GroupController extends Controller
             if ($request->has('users')) {
                 $group->users()->attach((array) $request->users);
             }
-           $group = $group->fresh('users');
+            $group = $group->fresh('users');
             return $this->successResponse(GroupResource::make($group), 'Group Created Successfully', 201);
         } catch (\Exception $e) {
 
@@ -70,7 +70,7 @@ class GroupController extends Controller
                 $group->users()->sync((array) $request->users);
             }
             $group->load('users');
-            
+
             return $this->successResponse(GroupResource::make($group), 'Group Updated Successfully', 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
 
@@ -96,5 +96,23 @@ class GroupController extends Controller
 
             return $this->errorResponse('Something Wrong Try Again', 500);
         }
+    }
+
+
+    public function assignPermissions(Request $request, $id)
+    {
+
+        $request->validate([
+            'permissions' => 'required|array',
+            'permissions.*' => 'exists:permissions,id',
+        ]);
+
+
+        $group = Group::findOrFail($id);
+
+
+        $group->permissions()->sync($request->permissions);
+        $group->load('permissions', 'users');
+        return $this->successResponse(GroupResource::make($group), 'Permissions assigned to group successfully', 200);
     }
 }

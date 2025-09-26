@@ -1,18 +1,27 @@
 <?php
 
 namespace App\Http\Controllers\API;
-
+ 
 use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\Api\UserRequest;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
 {
-
+   use AuthorizesRequests;
     use ApiResponse;
+   
+
+
+
+
+
+
     /**
      * Display a listing of the resource.
      */
@@ -35,8 +44,9 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-
-        try {
+           
+      
+          $this->authorize('create', User::class);
 
             $userData = $request->only(['name', 'email', 'phone', 'role']);
             $userData['password'] = bcrypt($request->password);
@@ -47,15 +57,13 @@ class UserController extends Controller
             }
              $user = User::create($userData);
             if($request->has('groups')){
-                $user->groups()->attach(array($request->groups));
+                $user->groups()->attach((array)$request->groups);
             }
          $user = $user->fresh('groups');
 
            
             return $this->successResponse(UserResource::make($user), 'User Created Successfully', 201);
-        } catch (\Exception $e) {
-            return $this->errorResponse('Something Wrong Try Again', 500);
-        }
+       
     }
 
     /**

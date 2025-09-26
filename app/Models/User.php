@@ -56,5 +56,14 @@ class User extends Authenticatable
     return $this->belongsToMany(Group::class,'group_user','user_id','group_id');
    }
 
+  public function hasPermission($action){
+    foreach ($this->groups as $group) {
+        if ($group->permissions->pluck('name')->contains($action)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 }

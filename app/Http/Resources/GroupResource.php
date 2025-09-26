@@ -20,7 +20,9 @@ class GroupResource extends JsonResource
         'description' => $this->description ?? null,
         'created_at' => $this->created_at ? $this->created_at->format('Y-m-d') : null,
         'updated_at' => $this->updated_at ? $this->updated_at->format('Y-m-d') : null,
-        'Users' => UserResource::collection($this->whenLoaded('users'))
+        'Users' => UserResource::collection($this->whenLoaded('users')),
+        'permissions' => PermissionResource::collection($this->whenLoaded('permissions')),
+      
     ];
 }
 
