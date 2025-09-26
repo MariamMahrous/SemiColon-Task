@@ -23,6 +23,8 @@ class UserResource extends JsonResource
             'photo'=>$this->photo,
            'created_at' => $this->created_at->format('Y-m-d'),
            'updated_at' => $this->updated_at->format('Y-m-d'),
+           'groups' => GroupResource::collection($this->whenLoaded('groups')),
+           
 
 
 

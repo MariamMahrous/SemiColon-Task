@@ -25,7 +25,7 @@ class UserController extends Controller
             $data->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $users = $data->paginate(PAGINATION_COUNT);
+        $users = $data->with('groups')->paginate(PAGINATION_COUNT);
 
         return $this->successResponse(UserResource::collection($users));
     }
@@ -45,9 +45,13 @@ class UserController extends Controller
             if ($request->hasFile('photo')) {
                 $userData['photo'] = saveImage('images', $request->file('photo'));
             }
+             $user = User::create($userData);
+            if($request->has('groups')){
+                $user->groups()->attach(array($request->groups));
+            }
+         $user = $user->fresh('groups');
 
-
-            $user = User::create($userData);
+           
             return $this->successResponse(UserResource::make($user), 'User Created Successfully', 201);
         } catch (\Exception $e) {
             return $this->errorResponse('Something Wrong Try Again', 500);
@@ -60,7 +64,7 @@ class UserController extends Controller
     public function show(string $id)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::with('groups')->findOrFail($id);
             return $this->successResponse(UserResource::make($user));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
 
@@ -85,10 +89,14 @@ class UserController extends Controller
             if ($request->hasFile('photo')) {
                 $userData['photo'] = saveImage('images', $request->file('photo'));
             }
+           $user->update($userData);
+              if ($request->has('groups')) {
+                $user->groups()->sync((array) $request->groups);
+            }
+            $user->load('groups');
+            
 
-            $user->update($userData);
-
-            return $this->successResponse(UserResource::make($user->fresh()), 'User Updated Successfully', 200);
+            return $this->successResponse(UserResource::make($user), 'User Updated Successfully', 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
 
             return $this->errorResponse('User Not Found', 404);
