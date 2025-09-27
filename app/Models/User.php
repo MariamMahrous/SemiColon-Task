@@ -51,19 +51,26 @@ class User extends Authenticatable
         ];
     }
 
+   public function hasPermission(string $permission): bool
+{
+    if ($this->groups->isEmpty()) {
+        return false; 
+    }
+
+    return $this->groups
+        ->flatMap(fn($group) => $group->permissions->pluck('name'))
+        ->contains($permission);
+}
+
+
+
 
    public function groups(){
     return $this->belongsToMany(Group::class,'group_user','user_id','group_id');
    }
 
-  public function hasPermission($action){
-    foreach ($this->groups as $group) {
-        if ($group->permissions->pluck('name')->contains($action)) {
-            return true;
-        }
-    }
-    return false;
-}
+  
+
 
 
 }

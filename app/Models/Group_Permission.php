@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Group_Permission extends Model
 {
-  protected $table='group__permission';
+  protected $table='group_permission';
     protected $fillable=['group_id','permission_id'];
 }

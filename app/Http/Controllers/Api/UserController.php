@@ -1,25 +1,20 @@
 <?php
 
 namespace App\Http\Controllers\API;
- 
+
 use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\Api\UserRequest;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 
 class UserController extends Controller
 {
-   use AuthorizesRequests;
+  
     use ApiResponse;
    
-
-
-
-
 
 
     /**
@@ -44,9 +39,8 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-           
-      
-          $this->authorize('create', User::class);
+
+        try {
 
             $userData = $request->only(['name', 'email', 'phone', 'role']);
             $userData['password'] = bcrypt($request->password);
@@ -63,7 +57,9 @@ class UserController extends Controller
 
            
             return $this->successResponse(UserResource::make($user), 'User Created Successfully', 201);
-       
+        } catch (\Exception $e) {
+            return $this->errorResponse('Something Wrong Try Again', 500);
+        }
     }
 
     /**

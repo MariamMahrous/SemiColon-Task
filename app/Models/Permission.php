@@ -6,12 +6,13 @@ use App\Models\Group;
 use Illuminate\Database\Eloquent\Model;
 
 class Permission extends Model
-{
+{ 
+    protected $table='permissions';
     protected $fillable=['name'];
 
-     public function groups()
-    {
-        return $this->belongsToMany(Group::class, 'Group_Permission', 'permission_id', 'group_id');
-    }
+    public function groups()
+{
+    return $this->belongsToMany(Group::class, 'group_permission', 'permission_id', 'group_id');
+}
 
 }

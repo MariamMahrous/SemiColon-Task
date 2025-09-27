@@ -20,11 +20,11 @@ Route::group(['middleware'=>['auth:sanctum']],function(){
 
 
   Route::group(['prefix'=>'users'],function(){
-    Route::get('/',[UserController::class,'index']);
-    Route::post('store',[UserController::class,'store']);
-    Route::post('show/{id}',[UserController::class,'show']);
-    Route::post('update/{id}',[UserController::class,'update']);
-    Route::post('delete/{id}',[UserController::class,'destroy']);
+    Route::get('/',[UserController::class,'index'])->middleware('permission:view_users');
+    Route::post('store',[UserController::class,'store'])->middleware('permission:create_users');
+    Route::post('show/{id}',[UserController::class,'show'])->middleware('permission:show-users');
+    Route::post('update/{id}',[UserController::class,'update'])->middleware('permission:update_users');
+    Route::post('delete/{id}',[UserController::class,'destroy'])->middleware('permission:delete_users');
 
 
      });
@@ -39,13 +39,13 @@ Route::group(['middleware'=>['auth:sanctum']],function(){
     Route::post('show/{id}',[GroupController::class,'show']);
     Route::post('update/{id}',[GroupController::class,'update']);
     Route::post('delete/{id}',[GroupController::class,'destroy']);
-    Route::post('/{id}/permissions', [GroupController::class, 'assignPermissions']);
+    Route::post('/{id}/permissions', [GroupController::class, 'assignPermissions'])->middleware('permission:assign-roles');
 
   });
 
   
  Route::get('permissions',[PermissionsController::class,'getPermissions']);
 
+
   });
 // *****************End Groups Routes******************//
-
